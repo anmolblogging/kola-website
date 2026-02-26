@@ -13,19 +13,14 @@ import {
   ArrowUp,
   Send,
 } from "lucide-react";
-import emailjs from "emailjs-com";
 const logo =
   "https://oskiqdthpejzihtjybwc.supabase.co/storage/v1/object/public/kola-website%20images/kola-logo.png";
-type FooterLinksType = {
-  [key: string]: string[];
-};
+// type FooterLinksType = {
+//   [key: string]: string[];
+// };
 
 const Footer: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     setIsVisible(true);
@@ -67,27 +62,6 @@ const Footer: React.FC = () => {
     },
   ];
 
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    setSuccess(false);
-
-    try {
-      await emailjs.send(
-        "service_yayw0ip",
-        "template_dtw0ldw",
-        { user_email: email },
-        "y5rHQHu3EGXf5ihq8"
-      );
-      setSuccess(true);
-      setEmail("");
-    } catch (err) {
-      setError("Failed to subscribe. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <footer className="relative bg-black text-white">

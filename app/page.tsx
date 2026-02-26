@@ -19,7 +19,6 @@ export default function Home() {
       <HeroSection />
       <Projectparallax/>
       <ServicesSection />
-      {/* <Scrollcounter/> */}
       <br />
       <br />
       <br />

@@ -2,7 +2,6 @@
 
 import type React from "react";
 import { useState } from "react";
-import emailjs from "emailjs-com";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -31,39 +30,36 @@ export default function Contact() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // ⭐ UPDATED SUBMIT LOGIC (calls Nodemailer API)
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setStatus(null);
 
-    emailjs
-      .send(
-        "service_yayw0ip", // replace with your EmailJS service ID
-        "template_5r30e4a", // replace with your EmailJS template ID
-        {
-          fullName: formData.fullName,
-          email: formData.email,
-          companyName: formData.companyName,
-          message: formData.message,
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        "y5rHQHu3EGXf5ihq8" // replace with your EmailJS public key
-      )
-      .then(
-        () => {
-          setStatus("success");
-          setFormData({
-            fullName: "",
-            email: "",
-            companyName: "",
-            message: "",
-          });
-        },
-        (error) => {
-          console.error("EmailJS Error:", error);
-          setStatus("error");
-        }
-      )
-      .finally(() => setLoading(false));
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) throw new Error("Failed");
+
+      setStatus("success");
+      setFormData({
+        fullName: "",
+        email: "",
+        companyName: "",
+        message: "",
+      });
+    } catch (error) {
+      console.error(error);
+      setStatus("error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -88,12 +84,10 @@ export default function Contact() {
                 <h2 className="text-2xl font-semibold text-gray-900 mb-6">
                   Send us a message
                 </h2>
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <Label
-                      htmlFor="fullName"
-                      className="text-sm font-medium text-gray-700"
-                    >
+                    <Label htmlFor="fullName" className="text-sm font-medium text-gray-700">
                       Full Name *
                     </Label>
                     <Input
@@ -109,10 +103,7 @@ export default function Contact() {
                   </div>
 
                   <div>
-                    <Label
-                      htmlFor="email"
-                      className="text-sm font-medium text-gray-700"
-                    >
+                    <Label htmlFor="email" className="text-sm font-medium text-gray-700">
                       Email *
                     </Label>
                     <Input
@@ -128,10 +119,7 @@ export default function Contact() {
                   </div>
 
                   <div>
-                    <Label
-                      htmlFor="companyName"
-                      className="text-sm font-medium text-gray-700"
-                    >
+                    <Label htmlFor="companyName" className="text-sm font-medium text-gray-700">
                       Company Name
                     </Label>
                     <Input
@@ -146,10 +134,7 @@ export default function Contact() {
                   </div>
 
                   <div>
-                    <Label
-                      htmlFor="message"
-                      className="text-sm font-medium text-gray-700"
-                    >
+                    <Label htmlFor="message" className="text-sm font-medium text-gray-700">
                       Message *
                     </Label>
                     <Textarea
@@ -187,40 +172,32 @@ export default function Contact() {
             </Card>
           </div>
 
-          {/* Right Side - Contact Info & Stats */}
+          {/* Right Side - Contact Info & Stats (UNCHANGED) */}
           <div className="space-y-8">
             <Card className="shadow-lg border-0 text-black">
               <CardContent className="p-8">
                 <h2 className="text-2xl font-semibold mb-6">Get in touch</h2>
                 <div className="space-y-6">
-                  {/* Phone Section */}
                   <div className="flex items-start space-x-4">
                     <Phone className="w-6 h-6 mt-1 flex-shrink-0" />
                     <div>
                       <h3 className="font-medium mb-1">Phone</h3>
-                      <a
-                        href="tel:+918108969630"
-                        className="text-gray-900 hover:text-blue-600 transition-colors"
-                      >
+                      <a href="tel:+918108969630" className="text-gray-900 hover:text-blue-600">
                         +91-8108969630
                       </a>
                     </div>
                   </div>
 
-                  {/* Email Section */}
                   <div className="flex items-start space-x-4">
                     <Mail className="w-6 h-6 mt-1 flex-shrink-0" />
                     <div>
                       <h3 className="font-medium mb-1">Email</h3>
-                      <a
-                        href="mailto:business@kolacommunications.com"
-                        className="text-gray-900 hover:text-blue-600 transition-colors"
-                      >
+                      <a href="mailto:business@kolacommunications.com" className="text-gray-900 hover:text-blue-600">
                         business@kolacommunications.com
                       </a>
                     </div>
                   </div>
-                  {/* address */}
+
                   <div className="flex items-start space-x-4">
                     <MapPin className="w-6 h-6 mt-1 flex-shrink-0" />
                     <div>
@@ -229,7 +206,7 @@ export default function Contact() {
                         href="https://maps.app.goo.gl/oSEbseq5kjWGG8eJ7?g_st=ipc"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-gray-900 hover:text-blue-600 transition-colors"
+                        className="text-gray-900 hover:text-blue-600"
                       >
                         C42, Modi Nagar CHS, Opposite Wanjawadi, Kandivali West,
                         Mumbai - 400067
@@ -256,25 +233,18 @@ export default function Contact() {
                       <CheckCircle className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-gray-900">
-                        100+
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        Projects Completed
-                      </div>
+                      <div className="text-2xl font-bold text-gray-900">100+</div>
+                      <div className="text-sm text-gray-600">Projects Completed</div>
                     </div>
                   </div>
+
                   <div className="flex items-center space-x-3">
                     <div className="w-12 h-12 bg-gradient-to-r from-[#3D44C3] to-[#2C349E] rounded-full flex items-center justify-center">
                       <Award className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-gray-900">
-                        99%
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        Client Satisfaction
-                      </div>
+                      <div className="text-2xl font-bold text-gray-900">99%</div>
+                      <div className="text-sm text-gray-600">Client Satisfaction</div>
                     </div>
                   </div>
                 </div>
